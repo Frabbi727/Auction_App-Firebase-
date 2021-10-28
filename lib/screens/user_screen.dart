@@ -1,10 +1,12 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
 
 class UserScreen extends StatefulWidget {
-  UserScreen({Key? key}) : super(key: key);
+ 
 
   @override
   _UserScreenState createState() => _UserScreenState();
@@ -18,18 +20,28 @@ class _UserScreenState extends State<UserScreen> {
   var _bidPrice = '';
   var _auctionDate = '';
 
-  void _trySubmit() {
+  void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (isValid) {
-      _formKey.currentState?.save();
-      print(_productName);
-      print(_productDes);
-      print(_bidPrice);
-      print(_auctionDate);
-      print(' Good to go ');
-    } else {
-      print('Form is not valid');
+    try {
+      if (isValid) {
+        _formKey.currentState?.save();
+        print(_productName);
+        print(_productDes);
+        print(_bidPrice);
+        print(_auctionDate);
+        print(' Good to go ');
+        await FirebaseFirestore.instance.collection('Products').add({
+          'productName': _productName,
+          'productDes': _productDes,
+          'bidPrice': _bidPrice,
+          'auctionDate': _auctionDate,
+        });
+      } else {
+        print('Form is not valid');
+      }
+    } catch (err) {
+      Text('Check credential');
     }
   }
 
@@ -48,7 +60,14 @@ class _UserScreenState extends State<UserScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               addRepaintBoundaries: true,
               children: <Widget>[
-                Center(child: Text('Add New Product',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),)),
+                Center(
+                    child: Text(
+                  'Add New Product',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor),
+                )),
                 TextFormField(
                   onSaved: (value) {
                     _productName = value!;
@@ -74,8 +93,6 @@ class _UserScreenState extends State<UserScreen> {
                     }
                     return null;
                   },
-                  
-                  
                   decoration: InputDecoration(
                       labelText: 'Product Description',
                       icon: Icon(Icons.description)),
@@ -165,10 +182,27 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                   value: 'logout',
                 ),
+                DropdownMenuItem(
+                  child: Container(
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.exit_to_app,
+                          color: Theme.of(context).indicatorColor,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text('Add Products')
+                      ],
+                    ),
+                  ),
+                  value: 'Add',
+                ),
               ],
               onChanged: (itemIdentifire) {
-                if (itemIdentifire == 'logout') {
-                  FirebaseAuth.instance.signOut();
+                if (itemIdentifire == 'Add') {
+                  addNewProducts(context);
                 }
               },
             ),
@@ -188,17 +222,45 @@ class _UserScreenState extends State<UserScreen> {
             }
             return true;
           },
-          child: ListView.builder(
-            itemCount: 100,
-            itemBuilder: (ctx, index) => Container(
-              padding: EdgeInsets.all(8),
-              child: Text('This Works!'),
-            ),
+          
+           child:
+          StreamBuilder(
+            stream:
+                FirebaseFirestore.instance.collection('Products').snapshots(),
+            builder: (BuildContext contex,
+                AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+              if (!snapshot.hasData) {
+                return Text('No Produts for display..');
+              }
+              return ListView(
+                physics: ScrollPhysics(),
+                children: snapshot.data!.docs.map((document) {
+                  return Card(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Card(
+                          child: Text('Image'),
+                        ),
+                        Column(children:<Widget> [
+                          Text('Name :' + document['productName']),
+                          Text('description :' + document['productDes']),
+                          Text('Price :' + document['bidPrice']),
+                          Text('Date :' + document['auctionDate']),
+                          TextButton(onPressed: (){}, child: Text('Bid')),
+                        ],),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            },
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: isFabVisibale
-            ? FloatingActionButton(
+            ? 
+            FloatingActionButton(
                 child: Icon(Icons.add),
                 onPressed: () {
                   addNewProducts(context);
