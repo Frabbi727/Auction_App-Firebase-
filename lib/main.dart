@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Auction App',
       theme: ThemeData(
-       primaryColor: Colors.green,
-        primarySwatch: Colors.pink,
+       primaryColor: Colors.cyan,
+        primarySwatch: Colors.lightBlue,
         backgroundColor: Colors.deepPurple,
         
        

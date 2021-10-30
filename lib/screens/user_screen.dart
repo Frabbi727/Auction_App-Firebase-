@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
-
+import '../widgets/user_drawer.dart';
 class UserScreen extends StatefulWidget {
   @override
   _UserScreenState createState() => _UserScreenState();
@@ -63,6 +63,7 @@ class _UserScreenState extends State<UserScreen> {
             key: _formKey,
             child: ListView(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              scrollDirection: Axis.vertical,
               addRepaintBoundaries: true,
               children: <Widget>[
                 Center(
@@ -202,6 +203,7 @@ class _UserScreenState extends State<UserScreen> {
             ),
           ],
         ),
+        drawer: UserDrawer(),
         body: NotificationListener<UserScrollNotification>(
           onNotification: (notification) {
             if (notification.direction == ScrollDirection.forward) {
