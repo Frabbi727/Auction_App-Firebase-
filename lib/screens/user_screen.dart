@@ -1,13 +1,9 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
 
 class UserScreen extends StatefulWidget {
- 
-
   @override
   _UserScreenState createState() => _UserScreenState();
 }
@@ -19,9 +15,15 @@ class _UserScreenState extends State<UserScreen> {
   var _productDes = '';
   var _bidPrice = '';
   var _auctionDate = '';
+  late User loggedInuser;
+  //final FirebaseAuth auth = FirebaseAuth.instance;
+
+ 
 
   void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
+    var FirebaseUser= await FirebaseAuth.instance.currentUser;
+    
     FocusScope.of(context).unfocus();
     try {
       if (isValid) {
@@ -30,8 +32,11 @@ class _UserScreenState extends State<UserScreen> {
         print(_productDes);
         print(_bidPrice);
         print(_auctionDate);
+        print(FirebaseUser!.uid);
+      
+
         print(' Good to go ');
-        await FirebaseFirestore.instance.collection('Products').add({
+        await FirebaseFirestore.instance.collection('users').doc(FirebaseUser.uid).collection('products').add({
           'productName': _productName,
           'productDes': _productDes,
           'bidPrice': _bidPrice,
@@ -45,7 +50,7 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
-  bool isFabVisibale = false;
+  bool isFabVisibale = true;
   void addNewProducts(BuildContext ctx) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -143,7 +148,13 @@ class _UserScreenState extends State<UserScreen> {
                       child: Text('Cancel'),
                     ),
                     ElevatedButton(
-                      onPressed: _trySubmit,
+                      onPressed: () {
+                        _trySubmit();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UserScreen()));
+                      },
                       child: Text('Add Product'),
                     ),
                   ],
@@ -182,27 +193,10 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                   value: 'logout',
                 ),
-                DropdownMenuItem(
-                  child: Container(
-                    child: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.exit_to_app,
-                          color: Theme.of(context).indicatorColor,
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text('Add Products')
-                      ],
-                    ),
-                  ),
-                  value: 'Add',
-                ),
               ],
               onChanged: (itemIdentifire) {
-                if (itemIdentifire == 'Add') {
-                  addNewProducts(context);
+                if (itemIdentifire == 'logout') {
+                  FirebaseAuth.instance.signOut();
                 }
               },
             ),
@@ -222,11 +216,9 @@ class _UserScreenState extends State<UserScreen> {
             }
             return true;
           },
-          
-           child:
-          StreamBuilder(
+          child: StreamBuilder(
             stream:
-                FirebaseFirestore.instance.collection('Products').snapshots(),
+                FirebaseFirestore.instance.collectionGroup('products').snapshots(),
             builder: (BuildContext contex,
                 AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
               if (!snapshot.hasData) {
@@ -235,20 +227,26 @@ class _UserScreenState extends State<UserScreen> {
               return ListView(
                 physics: ScrollPhysics(),
                 children: snapshot.data!.docs.map((document) {
-                  return Card(
+                  return Padding(
+                    padding: EdgeInsets.all(10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Card(
+                        Expanded(
                           child: Text('Image'),
                         ),
-                        Column(children:<Widget> [
-                          Text('Name :' + document['productName']),
-                          Text('description :' + document['productDes']),
-                          Text('Price :' + document['bidPrice']),
-                          Text('Date :' + document['auctionDate']),
-                          TextButton(onPressed: (){}, child: Text('Bid')),
-                        ],),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text('Name :' + document['productName']),
+                              Text('description :' + document['productDes']),
+                              Text('Price :' + document['bidPrice']),
+                              Text('Date :' + document['auctionDate']),
+                              TextButton(onPressed: () {}, child: Text('Bid')),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -259,8 +257,7 @@ class _UserScreenState extends State<UserScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: isFabVisibale
-            ? 
-            FloatingActionButton(
+            ? FloatingActionButton(
                 child: Icon(Icons.add),
                 onPressed: () {
                   addNewProducts(context);
@@ -271,3 +268,4 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 }
+
