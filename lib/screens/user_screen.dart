@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
 import '../widgets/user_drawer.dart';
+
 class UserScreen extends StatefulWidget {
   @override
   _UserScreenState createState() => _UserScreenState();
@@ -18,12 +19,10 @@ class _UserScreenState extends State<UserScreen> {
   late User loggedInuser;
   //final FirebaseAuth auth = FirebaseAuth.instance;
 
- 
-
   void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
-    var FirebaseUser= await FirebaseAuth.instance.currentUser;
-    
+    var FirebaseUser = await FirebaseAuth.instance.currentUser;
+
     FocusScope.of(context).unfocus();
     try {
       if (isValid) {
@@ -32,11 +31,14 @@ class _UserScreenState extends State<UserScreen> {
         print(_productDes);
         print(_bidPrice);
         print(_auctionDate);
-        print(FirebaseUser!.uid);
-      
+        print(FirebaseUser!.email);
 
         print(' Good to go ');
-        await FirebaseFirestore.instance.collection('users').doc(FirebaseUser.uid).collection('products').add({
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseUser.uid)
+            .collection('products')
+            .add({
           'productName': _productName,
           'productDes': _productDes,
           'bidPrice': _bidPrice,
@@ -139,24 +141,31 @@ class _UserScreenState extends State<UserScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UserScreen()));
-                      },
-                      child: Text('Cancel'),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserScreen()));
+                        },
+                        child: Text('Cancel'),
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _trySubmit();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UserScreen()));
-                      },
-                      child: Text('Add Product'),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _trySubmit();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserScreen()));
+                        },
+                        child: Text('Add Product'),
+                      ),
                     ),
                   ],
                 ),
@@ -219,8 +228,9 @@ class _UserScreenState extends State<UserScreen> {
             return true;
           },
           child: StreamBuilder(
-            stream:
-                FirebaseFirestore.instance.collectionGroup('products').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collectionGroup('products')
+                .snapshots(),
             builder: (BuildContext contex,
                 AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
               if (!snapshot.hasData) {
@@ -270,4 +280,3 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 }
-
