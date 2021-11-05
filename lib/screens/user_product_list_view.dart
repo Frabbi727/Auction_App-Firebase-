@@ -16,15 +16,11 @@ class _UserProductListState extends State<UserProductList> {
     return Scaffold(
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
-            // .collectionGroup('products')
-            // .where(LoginUser!.uid)
-            // .snapshots(),
-
-        .collection('users')
-        //.doc(FirebaseAuth.instance.currentUser?.uid ?? '') this portion is also perfect and working perfectly but i have user the avobe one.....
-        .doc(LoginUser!.uid)
-        .collection('products')
-        .snapshots(),
+            .collection('users')
+            //.doc(FirebaseAuth.instance.currentUser?.uid ?? '') this portion is also perfect and working perfectly but i have user the avobe one.....
+            .doc(LoginUser!.uid)
+            .collection('products')
+            .snapshots(),
         builder: (BuildContext,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
           if (!snapshot.hasData) {
