@@ -1,7 +1,12 @@
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../widgets/user_drawer.dart';
 
 class UserScreen extends StatefulWidget {
@@ -10,18 +15,47 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
+
+  
+
+  File? pickImageFile;
+  Future pickAnImage() async {
+    try {
+      final pickedImage =
+          await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50, maxWidth: 150, maxHeight: 150);
+      if (pickedImage == null) return;
+      final pickTemp = File(pickedImage.path);
+      setState(() {
+        this.pickImageFile = pickTemp;
+      });
+      print(pickImageFile!.path);
+    } on Exception catch (e) {
+      print('failed to upload $e');
+    }
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   var _productName = '';
   var _productDes = '';
   var _bidPrice = '';
   var _auctionDate = '';
-  late User loggedInuser;
-  //final FirebaseAuth auth = FirebaseAuth.instance;
+   User? FirebaseUser;
+   var userName;
+
 
   void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
     var FirebaseUser = await FirebaseAuth.instance.currentUser;
+     if (FirebaseUser != null)
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseUser.uid)
+          .get()
+          .then((value) {
+        userName = value.data()!['username'];
+      });
+    
 
     FocusScope.of(context).unfocus();
     try {
@@ -32,6 +66,7 @@ class _UserScreenState extends State<UserScreen> {
         print(_bidPrice);
         print(_auctionDate);
         print(FirebaseUser!.email);
+        print(userName);
 
         print(' Good to go ');
         await FirebaseFirestore.instance
@@ -43,6 +78,7 @@ class _UserScreenState extends State<UserScreen> {
           'productDes': _productDes,
           'bidPrice': _bidPrice,
           'auctionDate': _auctionDate,
+          'submitBy': userName,
         });
       } else {
         print('Form is not valid');
@@ -67,6 +103,7 @@ class _UserScreenState extends State<UserScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               scrollDirection: Axis.vertical,
               addRepaintBoundaries: true,
+              physics: ScrollPhysics(),
               children: <Widget>[
                 Center(
                     child: Text(
@@ -138,6 +175,23 @@ class _UserScreenState extends State<UserScreen> {
                 SizedBox(
                   height: 20,
                 ),
+                // Row(
+                //   children: <Widget>[
+                //     CircleAvatar(
+                //       radius: 60,
+                      
+                //       // ignore: unnecessary_null_comparison
+                //       backgroundImage: pickImageFile != null
+                //           ? FileImage(pickImageFile!)
+                //           : null,
+                //     ),
+                //     IconButton(
+                //       onPressed: pickAnImage,
+                //       icon: Icon(Icons.image),
+                //       color: Theme.of(context).primaryColor,
+                //     ),
+                //   ],
+                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -255,6 +309,7 @@ class _UserScreenState extends State<UserScreen> {
                               Text('description :' + document['productDes']),
                               Text('Price :' + document['bidPrice']),
                               Text('Date :' + document['auctionDate']),
+                             // Text('By: ' + document['username']),
                               TextButton(onPressed: () {}, child: Text('Bid')),
                             ],
                           ),

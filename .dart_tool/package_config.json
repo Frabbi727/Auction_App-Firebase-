@@ -56,6 +56,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "cross_file",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/cross_file-0.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.3",
       "packageUri": "lib/",
@@ -104,6 +110,24 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "firebase_storage",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-10.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "firebase_storage_platform_interface",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_platform_interface-4.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "firebase_storage_web",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage_web-3.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///H:/Flutter/Tools/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -112,6 +136,12 @@
     {
       "name": "flutter_lints",
       "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.4",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -128,8 +158,32 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "http",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/http-0.13.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
       "name": "http_parser",
       "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "image_picker",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.8.4+4",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "image_picker_for_web",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_for_web-2.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "image_picker_platform_interface",
+      "rootUri": "file:///H:/Flutter/Tools/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker_platform_interface-2.4.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -236,7 +290,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-10-28T12:09:02.832725Z",
+  "generated": "2021-11-04T09:42:31.503038Z",
   "generator": "pub",
   "generatorVersion": "2.14.4"
 }

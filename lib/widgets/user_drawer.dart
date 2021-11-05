@@ -75,6 +75,7 @@ class _UserDrawerState extends State<UserDrawer> {
                           Expanded(
                               child: ElevatedButton(
                                   onPressed: () {
+                                    getUser();
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -106,6 +107,8 @@ class _UserDrawerState extends State<UserDrawer> {
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.blueAccent,
+                            backgroundImage: NetworkImage(snapshot.data!['user_image_url']),
+                            
                           ),
                           Text(
                             ' Name: ${data['username']} ',
