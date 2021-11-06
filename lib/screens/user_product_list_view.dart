@@ -1,5 +1,8 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class UserProductList extends StatefulWidget {
@@ -10,6 +13,7 @@ class UserProductList extends StatefulWidget {
 class _UserProductListState extends State<UserProductList> {
   var LoginUser = FirebaseAuth.instance.currentUser;
   //User? LoginUser;
+  var imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +31,54 @@ class _UserProductListState extends State<UserProductList> {
             return Text('No Produts for display..');
           }
           return ListView(
+            physics: ScrollPhysics(),
             children: snapshot.data!.docs.map((document) {
-              return Text('Name :' + document['productName']);
+              return Padding(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      height: 150,
+                      width: 150,
+                      margin: EdgeInsets.only(right: 10),
+                      child: Image(
+                        image: NetworkImage(document.data()['productImageUrl']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('Name :' + document['productName']),
+                          Text('description :' + document['productDes']),
+                          Text('Price :' + document['bidPrice']),
+                          Text('Date :' + document['auctionDate']),
+                          // Text('By: ' + document['username']),
+                          TextButton(
+                              onPressed: () async {
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(LoginUser!.uid)
+                                    .collection('products')
+                                    .doc(document.id)
+                                    .delete()
+                                    .then((value) async {
+                                  //await FirebaseStorage.instance.ref().child('productImage').child('productImageUrl').delete();
+                                  //FirebaseStorage.instance.refFromURL('productImageUrl').delete();
+                                  
+                                  print(
+                                      'Product Deleted But image is still there in Storage Folder');
+                                });
+                              },
+                              child: Text('Delete')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
             }).toList(),
           );
         },

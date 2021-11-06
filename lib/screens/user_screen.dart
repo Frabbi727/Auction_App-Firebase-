@@ -1,6 +1,6 @@
-
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,39 +15,40 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
+  final _formKey = GlobalKey<FormState>();
+  bool isFabVisibale = true;
+  User? FirebaseUser;
+  var _productName = '';
+  var _productDes = '';
+  var _bidPrice = '';
+  var _auctionDate = '';
+  var time= DateTime.now().toString();
 
-  
+  var userName;
 
   File? pickImageFile;
-  Future pickAnImage() async {
+  pickAnImage() async {
     try {
-      final pickedImage =
-          await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50, maxWidth: 150, maxHeight: 150);
+      final pickedImage = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          imageQuality: 50,
+          maxWidth: 200,
+          maxHeight: 100);
       if (pickedImage == null) return;
       final pickTemp = File(pickedImage.path);
       setState(() {
         this.pickImageFile = pickTemp;
       });
-      print(pickImageFile!.path);
+      print(pickImageFile);
     } on Exception catch (e) {
       print('failed to upload $e');
     }
   }
 
-  final _formKey = GlobalKey<FormState>();
-
-  var _productName = '';
-  var _productDes = '';
-  var _bidPrice = '';
-  var _auctionDate = '';
-   User? FirebaseUser;
-   var userName;
-
-
   void _trySubmit() async {
     final isValid = _formKey.currentState!.validate();
     var FirebaseUser = await FirebaseAuth.instance.currentUser;
-     if (FirebaseUser != null)
+    if (FirebaseUser != null)
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseUser.uid)
@@ -55,7 +56,6 @@ class _UserScreenState extends State<UserScreen> {
           .then((value) {
         userName = value.data()!['username'];
       });
-    
 
     FocusScope.of(context).unfocus();
     try {
@@ -69,6 +69,13 @@ class _UserScreenState extends State<UserScreen> {
         print(userName);
 
         print(' Good to go ');
+        final productImgRef = FirebaseStorage.instance
+            .ref()
+            .child('productImage')
+            .child(FirebaseUser.uid +time +'.jpg');
+        await productImgRef.putFile(pickImageFile!);
+        var productImageUrl = await productImgRef.getDownloadURL();
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseUser.uid)
@@ -79,16 +86,16 @@ class _UserScreenState extends State<UserScreen> {
           'bidPrice': _bidPrice,
           'auctionDate': _auctionDate,
           'submitBy': userName,
+          'productImageUrl': productImageUrl,
         });
       } else {
         print('Form is not valid');
       }
     } catch (err) {
-      Text('Check credential');
+      Text('Check credential: $err');
     }
   }
 
-  bool isFabVisibale = true;
   void addNewProducts(BuildContext ctx) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -175,23 +182,21 @@ class _UserScreenState extends State<UserScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                // Row(
-                //   children: <Widget>[
-                //     CircleAvatar(
-                //       radius: 60,
-                      
-                //       // ignore: unnecessary_null_comparison
-                //       backgroundImage: pickImageFile != null
-                //           ? FileImage(pickImageFile!)
-                //           : null,
-                //     ),
-                //     IconButton(
-                //       onPressed: pickAnImage,
-                //       icon: Icon(Icons.image),
-                //       color: Theme.of(context).primaryColor,
-                //     ),
-                //   ],
-                // ),
+                Row(
+                  children: <Widget>[
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: pickImageFile != null
+                          ? FileImage(pickImageFile!)
+                          : null,
+                    ),
+                    IconButton(
+                      onPressed: pickAnImage,
+                      icon: Icon(Icons.image),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -298,8 +303,15 @@ class _UserScreenState extends State<UserScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Expanded(
-                          child: Text('Image'),
+                        Container(
+                          height: 150,
+                          width: 150,
+                          margin: EdgeInsets.only(right: 10),
+                          child: Image(
+                            image: NetworkImage(
+                                document.data()['productImageUrl']),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Expanded(
                           child: Column(
@@ -309,7 +321,7 @@ class _UserScreenState extends State<UserScreen> {
                               Text('description :' + document['productDes']),
                               Text('Price :' + document['bidPrice']),
                               Text('Date :' + document['auctionDate']),
-                             // Text('By: ' + document['username']),
+                              // Text('By: ' + document['username']),
                               TextButton(onPressed: () {}, child: Text('Bid')),
                             ],
                           ),
