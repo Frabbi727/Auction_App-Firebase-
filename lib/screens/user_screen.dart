@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:date_time_picker/date_time_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../widgets/user_drawer.dart';
 
@@ -21,8 +23,10 @@ class _UserScreenState extends State<UserScreen> {
   var _productName = '';
   var _productDes = '';
   var _bidPrice = '';
-  var _auctionDate = '';
-  var time= DateTime.now().toString();
+
+  var time = DateTime.now().toString(); //for unique picture 
+  var uploadDate = DateFormat.yMMMd().add_Hm().format(DateTime.now());//it will automatically upload the date and time when user posting the adv
+  var lastDate; //use for date picker option to store the value and upload to the FirebaseCloud
 
   var userName;
 
@@ -64,15 +68,17 @@ class _UserScreenState extends State<UserScreen> {
         print(_productName);
         print(_productDes);
         print(_bidPrice);
-        print(_auctionDate);
+
         print(FirebaseUser!.email);
         print(userName);
+        print(uploadDate);
+        print(lastDate);
 
         print(' Good to go ');
         final productImgRef = FirebaseStorage.instance
             .ref()
             .child('productImage')
-            .child(FirebaseUser.uid +time +'.jpg');
+            .child(FirebaseUser.uid + time + '.jpg');
         await productImgRef.putFile(pickImageFile!);
         var productImageUrl = await productImgRef.getDownloadURL();
 
@@ -84,9 +90,10 @@ class _UserScreenState extends State<UserScreen> {
           'productName': _productName,
           'productDes': _productDes,
           'bidPrice': _bidPrice,
-          'auctionDate': _auctionDate,
           'submitBy': userName,
           'productImageUrl': productImageUrl,
+          'uploadDate': uploadDate,
+          'endDate': lastDate,
         });
       } else {
         print('Form is not valid');
@@ -164,20 +171,18 @@ class _UserScreenState extends State<UserScreen> {
                       labelText: 'Minimum Bid Price',
                       icon: Icon(Icons.price_check)),
                 ),
-                TextFormField(
-                  onSaved: (value) {
-                    _auctionDate = value!;
-                  },
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Enter Product End Date';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                      labelText: 'Auction End DateTime',
-                      icon: Icon(Icons.data_saver_off)),
+                DateTimePicker(
+                  type: DateTimePickerType.dateTimeSeparate,
+                  dateMask: 'd MMM, yyyy',
+                  initialValue: DateFormat.yMMMd().format(DateTime.now()),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  icon: Icon(Icons.event),
+                  dateLabelText: 'Date',
+                  timeLabelText: "Hour",
+                  onChanged: (value) => setState(() {
+                    lastDate = value;
+                  }),
                 ),
                 SizedBox(
                   height: 20,
@@ -204,9 +209,12 @@ class _UserScreenState extends State<UserScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserScreen()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserScreen(),
+                            ),
+                          );
+                          //print(lastDate);
                         },
                         child: Text('Cancel'),
                       ),
@@ -240,6 +248,7 @@ class _UserScreenState extends State<UserScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text('User Screen'),
           actions: [
@@ -320,8 +329,9 @@ class _UserScreenState extends State<UserScreen> {
                               Text('Name :' + document['productName']),
                               Text('description :' + document['productDes']),
                               Text('Price :' + document['bidPrice']),
-                              Text('Date :' + document['auctionDate']),
-                              // Text('By: ' + document['username']),
+                              //Text('By: ' + document['username']),
+                              Text('Post Date : ' + document['uploadDate']),
+                              Text('Last Date : ' + document['endDate']),
                               TextButton(onPressed: () {}, child: Text('Bid')),
                             ],
                           ),
@@ -340,6 +350,8 @@ class _UserScreenState extends State<UserScreen> {
                 child: Icon(Icons.add),
                 onPressed: () {
                   addNewProducts(context);
+                  // print(uploadDate);
+                  print(lastDate);
                 },
               )
             : null,

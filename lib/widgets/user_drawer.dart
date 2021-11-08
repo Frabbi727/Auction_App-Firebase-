@@ -96,7 +96,7 @@ class _UserDrawerState extends State<UserDrawer> {
                     ),
                     Container(
                       padding: EdgeInsets.only(top: 105),
-                      height: 300,
+                      height: 400,
                       width: double.infinity,
                       decoration: BoxDecoration(
                           color: Theme.of(context).primaryColorDark,
@@ -105,20 +105,26 @@ class _UserDrawerState extends State<UserDrawer> {
                       child: Column(
                         children: [
                           CircleAvatar(
-                            radius: 40,
+                            radius: 65,
                             backgroundColor: Colors.blueAccent,
                             backgroundImage: NetworkImage(snapshot.data!['user_image_url']),
                             
                           ),
-                          Text(
-                            ' Name: ${data['username']} ',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
-                          ),
-                          Text(
-                            'Email: ${data['email']} ',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
+                          SizedBox(height: 05,),
+                          Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ' Name: ${data['username']} ',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                              Text(
+                                'Email: ${data['email']} ',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -138,7 +144,7 @@ class _UserDrawerState extends State<UserDrawer> {
                       decoration: BoxDecoration(
                           color: Theme.of(context).primaryColorLight,
                           borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(80))),
+                              bottomLeft: Radius.circular(80),topRight: Radius.circular(80))),
                     ),
                   ],
                 );

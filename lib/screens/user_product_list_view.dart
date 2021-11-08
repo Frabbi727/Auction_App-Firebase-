@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,9 +13,12 @@ class _UserProductListState extends State<UserProductList> {
   //User? LoginUser;
   var imageUrl;
 
+ 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
@@ -51,11 +52,13 @@ class _UserProductListState extends State<UserProductList> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text('Name :' + document['productName']),
+                          Text('Name :' + document['productName'],style: TextStyle(color: Theme.of(context).primaryColor),),
                           Text('description :' + document['productDes']),
                           Text('Price :' + document['bidPrice']),
-                          Text('Date :' + document['auctionDate']),
+                          
                           // Text('By: ' + document['username']),
+                          Text('Post Date : ' + document['uploadDate']),
+                          Text('Last Date : ' + document['endDate']),
                           TextButton(
                               onPressed: () async {
                                 await FirebaseFirestore.instance
@@ -65,9 +68,11 @@ class _UserProductListState extends State<UserProductList> {
                                     .doc(document.id)
                                     .delete()
                                     .then((value) async {
-                                  //await FirebaseStorage.instance.ref().child('productImage').child('productImageUrl').delete();
+                                  // var storageRef = FirebaseStorage.instance
+                                  //     .refFromURL(productImageUrl!);
+                                  //     await storageRef.delete();
                                   //FirebaseStorage.instance.refFromURL('productImageUrl').delete();
-                                  
+
                                   print(
                                       'Product Deleted But image is still there in Storage Folder');
                                 });
